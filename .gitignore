@@ -1,0 +1,12 @@
+*.o
+*.elf
+*.velf
+*.bin
+*.vpk
+*.sfo
+*.cmake
+CMakeCache.txt
+build
+Makefile
+CMakeFiles
+.vscode
