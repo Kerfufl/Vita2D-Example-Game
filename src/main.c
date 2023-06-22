@@ -5,18 +5,31 @@
 
 #include <vita2d.h>
 
+
+#define jf -750
 //PSP2_MODULE_INFO(0, 0, "HelloWorld");
+
+
+struct rect {
+	int x;
+	int y;
+	int width;
+	int height;
+};
 
 int main() {
 	vita2d_pgf *pgf;
 	sceCtrlSetSamplingMode(SCE_CTRL_MODE_DIGITAL);
 	SceCtrlData ctrl;
+
 	int x = 700;
 	int y = 30;
+	
+	struct rect pl = {x,y,120,10};
 	uint64_t prevTime = sceKernelGetProcessTimeWide();
     float deltaTime = 0.0f;
 	int jumpCount = 0;
-	float jumpForce = -700.0f;
+	float jumpForce = jf;
     float jumpSpeed=jumpForce;
 	int ground = 1;
 	float gravity = 500.0f;
@@ -47,7 +60,7 @@ int main() {
             ground = 0;
             y += gravity * deltaTime;
         }
-
+		//bruh
 		//y += 1500*5*deltaTime;
 
  		if(ctrl.buttons & SCE_CTRL_LEFT) {x -= 200*deltaTime;}
@@ -97,10 +110,11 @@ int main() {
 		vita2d_pgf_draw_text(pgf, x, y, RGBA8(0, 255, 0, 255), 1.0f, "Hello, World!");
 		char scoreText[20];
 
-        sprintf(scoreText, "X: %d, Y: %d, ground: %d, jumpcount: %d, jumpforce: %f", x,y,ground, jumpCount, jumpForce);
+        sprintf(scoreText, "X: %d, Y: %d, ground: %d, jumpcount: %d, jumpforce: %.0f", x,y,ground, jumpCount, jumpForce);
 		vita2d_pgf_draw_text(pgf, 0, 15, RGBA8(0, 255, 0, 255), 1.0f, scoreText);
 		
-		//vita2d_draw_rectangle(x,y-15,120,15,RGBA8(0, 255, 0, 255));
+		vita2d_draw_rectangle(x,y-15,120,15,RGBA8(0, 255, 0, 255));
+		
 		
 		vita2d_end_drawing();
 		vita2d_swap_buffers();
