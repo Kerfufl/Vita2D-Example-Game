@@ -29,7 +29,9 @@ int main() {
 	int x = 700;
 	int y = 30;
 	
-	struct rect pl = {x,y,120,10};
+	struct rect pl;
+	pl.x = x;
+	pl.y = y;
 	uint64_t prevTime = sceKernelGetProcessTimeWide();
     float deltaTime = 0.0f;
 	int jumpCount = 0;
@@ -112,14 +114,19 @@ int main() {
 
 
 		vita2d_pgf_draw_text(pgf, x, y, RGBA8(0, 255, 0, 255), 1.0f, "Hello, World!");
-		char scoreText[20];
+		char scoreText[50];
+		char structText[20];
 
         sprintf(scoreText, "X: %d, Y: %d, ground: %d, jumpcount: %d, jumpforce: %.0f", x,y,ground, jumpCount, jumpForce);
+		
 		vita2d_pgf_draw_text(pgf, 0, 15, RGBA8(0, 255, 0, 255), 1.0f, scoreText);
+
+		sprintf(structText, "sx: %d sy: %d", pl.x, pl.y);
+		vita2d_pgf_draw_text(pgf, 0, 30, RGBA8(0, 255, 0, 255), 1.0f, structText);
 		
 		vita2d_draw_rectangle(x,y-15,120,15,RGBA8(0, 255, 0, 255));
 		
-		vita2d_draw_rectangle(pl.x,pl.y,120,15,RGBA8(0, 255, 255, 0));
+		//vita2d_draw_rectangle(pl.x, pl.y,120,15,RGBA8(0, 255, 255, 0));
 		
 		vita2d_end_drawing();
 		vita2d_swap_buffers();
