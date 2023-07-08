@@ -59,18 +59,18 @@ int main() {
 
 		sceCtrlPeekBufferPositive(0, &ctrl, 1);
 
-		if (y == gl) {
+		if (pl.y == gl) {
             ground = 1;
             jumpCount = 0;
-        } else if (y < gl) {
+        } else if (pl.y < gl) {
             ground = 0;
-            y += gravity * deltaTime;
+            pl.y += gravity * deltaTime;
         }
 		//bruh
 		//y += 1500*5*deltaTime;
 
- 		if(ctrl.buttons & SCE_CTRL_LEFT) {x -= 200*deltaTime;}
-		if(ctrl.buttons & SCE_CTRL_RIGHT) {x += 200*deltaTime;}
+ 		if(ctrl.buttons & SCE_CTRL_LEFT) {pl.x -= 200*deltaTime;}
+		if(ctrl.buttons & SCE_CTRL_RIGHT) {pl.x += 200*deltaTime;}
 		
 		// if(ctrl.buttons & SCE_CTRL_UP) {y -= 5;}
 		// if(ctrl.buttons & SCE_CTRL_DOWN) {y+= 5;}
@@ -102,15 +102,15 @@ int main() {
 			forcePressed = 0;
 		}
 		if (!ground) {
-            y += jumpSpeed * deltaTime; // Apply jump velocity
+            pl.y += jumpSpeed * deltaTime; // Apply jump velocity
             jumpSpeed += gravity * deltaTime; // Apply gravity
         }
 
 		
-		if(x > rb) {x = rb;}
-		if(x < lb)  {x = lb;}
-		if(y > gl) {y = gl;}
-		if(y < 12)  {y = 12;}
+		if(pl.x > rb) {pl.x = rb;}
+		if(pl.x < lb)  {pl.x = lb;}
+		if(pl.y > gl) {pl.y = gl;}
+		if(pl.y < 12)  {pl.y = 12;}
 
 
 		vita2d_pgf_draw_text(pgf, x, y, RGBA8(0, 255, 0, 255), 1.0f, "Hello, World!");
@@ -124,9 +124,9 @@ int main() {
 		sprintf(structText, "sx: %d sy: %d", pl.x, pl.y);
 		vita2d_pgf_draw_text(pgf, 0, 30, RGBA8(0, 255, 0, 255), 1.0f, structText);
 		
-		vita2d_draw_rectangle(x,y-15,120,15,RGBA8(0, 255, 0, 255));
+		//vita2d_draw_rectangle(x,y-15,120,15,RGBA8(0, 255, 0, 255));
 		
-		//vita2d_draw_rectangle(pl.x, pl.y,120,15,RGBA8(0, 255, 255, 0));
+		vita2d_draw_rectangle(pl.x, pl.y-15,120,15,RGBA8(0, 255, 255, 255));
 		
 		vita2d_end_drawing();
 		vita2d_swap_buffers();
