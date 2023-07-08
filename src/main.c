@@ -3,6 +3,7 @@
 #include <psp2/ctrl.h>
 #include <stdio.h>
 
+#include <math.h>
 #include <vita2d.h>
 
 
@@ -42,6 +43,9 @@ int main() {
 	int jumpButtonPressed = 0;
 	int forcePressed= 0;
 
+	float acceleration = 400.0f;
+    float velocity = 0.0f;
+
 	vita2d_init();
 	vita2d_set_clear_color(RGBA8(0, 0, 0, 255));
 
@@ -68,8 +72,28 @@ int main() {
 		//bruh
 		//y += 1500*5*deltaTime;
 
- 		if(ctrl.buttons & SCE_CTRL_LEFT) {pl.x -= 200*deltaTime;}
-		if(ctrl.buttons & SCE_CTRL_RIGHT) {pl.x += 200*deltaTime;}
+		//Controls setup
+		if (ctrl.buttons & SCE_CTRL_LEFT || ctrl.buttons & SCE_CTRL_RIGHT) {
+            acceleration = 400.0f;
+        } else {
+            acceleration = 0.0f;
+        }
+
+ 		if(ctrl.buttons & SCE_CTRL_LEFT) {velocity -= acceleration*deltaTime;}
+		if(ctrl.buttons & SCE_CTRL_RIGHT) {velocity += acceleration*deltaTime;}
+
+		if (velocity < 0) {
+			//velocity -= acceleration * deltaTime;
+			velocity *= 0.6f; // Apply damping factor for left movement
+		}
+		if (velocity > 0) {
+			velocity += acceleration * deltaTime;
+			velocity *= 0.85f; // Apply damping factor for right movement
+		}
+		pl.x += floor(velocity * deltaTime);
+		//velocity = .4f * velocity;
+
+		//such a pien, why why
 
 		if (ctrl.buttons & SCE_CTRL_CROSS && !jumpButtonPressed && jumpCount < 4) {
             jumpSpeed = jumpForce; // Initial jump velocity
@@ -117,7 +141,7 @@ int main() {
         sprintf(scoreText, "X: %d, Y: %d, ground: %d, jumpcount: %d, jumpforce: %.0f", x,y,ground, jumpCount, jumpForce);
 		vita2d_pgf_draw_text(pgf, 0, 15, RGBA8(0, 255, 0, 255), 1.0f, scoreText);
 
-		sprintf(structText, "sx: %d sy: %d", pl.x, pl.y);
+		sprintf(structText, "sx: %d sy: %d velocity: %.4f", pl.x, pl.y, velocity);
 		vita2d_pgf_draw_text(pgf, 0, 30, RGBA8(0, 255, 0, 255), 1.0f, structText);
 		
 		//vita2d_draw_rectangle(x,y-15,120,15,RGBA8(0, 255, 0, 255));
