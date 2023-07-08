@@ -7,6 +7,10 @@
 
 
 #define jf -750
+
+#define gl 539
+#define rb 840
+#define lb 10
 //PSP2_MODULE_INFO(0, 0, "HelloWorld");
 
 
@@ -53,10 +57,10 @@ int main() {
 
 		sceCtrlPeekBufferPositive(0, &ctrl, 1);
 
-		if (y == 539) {
+		if (y == gl) {
             ground = 1;
             jumpCount = 0;
-        } else if (y < 539) {
+        } else if (y < gl) {
             ground = 0;
             y += gravity * deltaTime;
         }
@@ -101,9 +105,9 @@ int main() {
         }
 
 		
-		if(x > 840) {x = 840;}
-		if(x < 10)  {x = 10;}
-		if(y > 539) {y = 539;}
+		if(x > rb) {x = rb;}
+		if(x < lb)  {x = lb;}
+		if(y > gl) {y = gl;}
 		if(y < 12)  {y = 12;}
 
 
@@ -115,6 +119,7 @@ int main() {
 		
 		vita2d_draw_rectangle(x,y-15,120,15,RGBA8(0, 255, 0, 255));
 		
+		vita2d_draw_rectangle(pl.x,pl.y,120,15,RGBA8(0, 255, 255, 0));
 		
 		vita2d_end_drawing();
 		vita2d_swap_buffers();
