@@ -33,7 +33,7 @@ int isIntersecting(struct rect rect1, struct rect rect2) {
            rect1.y + rect1.height > rect2.y;
 }
 
-void calculateCollisionDisplacement(struct rect* rect1, struct rect rect2) {
+void calculateCollisionDisplacement(struct rect* rect1, struct rect rect2, int *gr) {
     int dx = 0, dy = 0;
 
     // Calculate the overlap on each side of the rectangles
@@ -51,15 +51,19 @@ void calculateCollisionDisplacement(struct rect* rect1, struct rect rect2) {
 
     if (overlapTop < overlapBottom) {
         dy = -overlapTop;
+		rect1->y = rect2.y;
+		*gr =1;
     } else {
-        dy = overlapBottom;
+        //dy = overlapBottom;
+		//rect1->y = rect2.y+rect2.height;
+		//*gr=0;
     }
 
     // Adjust the position of rect1 to push it away from rect2
-    rect1->x += dx;
-    rect1->y += dy;
-}
-
+    //rect1->x = 2 *dx;
+    //rect1->y += 1.5*dy;
+} 
+ 
 int main() {
 	vita2d_pgf *pgf;
 	sceCtrlSetSamplingMode(SCE_CTRL_MODE_DIGITAL);
@@ -80,7 +84,7 @@ int main() {
 	
 	char scoreText[80];
 	char structText[40];
-	int col = 0;
+	int col = 0; 
 	int jumpButtonPressed = 0;
 	int forcePressed= 0;
 
@@ -103,10 +107,10 @@ int main() {
 
 		sceCtrlPeekBufferPositive(0, &ctrl, 1);
 
-		if (pl.y == gl) {
+		if (pl.y == gl || ground == 1) {
             ground = 1;
             jumpCount = 0;
-        } else if (pl.y < gl) {
+        } else if (pl.y < gl && ground ==0) {
             ground = 0;
             pl.y += gravity * deltaTime;
         }
@@ -162,11 +166,13 @@ int main() {
 		if (!(ctrl.buttons & SCE_CTRL_RTRIGGER) && !(ctrl.buttons & SCE_CTRL_LTRIGGER))
 		{
 			forcePressed = 0;
-		}
+		} 
 		if (!ground) {
             pl.y += jumpSpeed * deltaTime; // Apply jump velocity
             jumpSpeed += gravity * deltaTime; // Apply gravity
-        }
+        } else {
+			jumpCount = 0;
+		}
 		
 		
 		if(pl.x > rb) {pl.x = rb;}
@@ -175,7 +181,8 @@ int main() {
 		if(pl.y < 12)  {pl.y = 12;}
 
 		if (isIntersecting(pl, fl)) {
-            //calculateCollisionDisplacement(&pl, fl); // Adjust the position to separate the rectangles 
+             // Adjust the position to separate the rectangles 
+			 calculateCollisionDisplacement(&pl, fl, &ground);
 			col = 1;
 		} else {
 			col = 0;
@@ -201,7 +208,7 @@ int main() {
 		
 		vita2d_end_drawing();
 		vita2d_swap_buffers();
-	}
+	} 
 	
 	vita2d_fini();
 	vita2d_free_pgf(pgf);
