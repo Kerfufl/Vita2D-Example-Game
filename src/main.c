@@ -6,13 +6,17 @@
 #include <math.h>
 #include <vita2d.h>
 
+#define sp 3
 
-#define jf -750
+#define jf -850
 
 #define gl 539
 #define rb 840
 #define lb 10
-//PSP2_MODULE_INFO(0, 0, "HelloWorld");
+
+#define ld .85f
+#define rd .85f
+//PSP2_MODULE_INFO(0, 0, "HelloWorld");df
 
 
 struct rect {
@@ -21,6 +25,40 @@ struct rect {
 	int width;
 	int height;
 };
+
+int isIntersecting(struct rect rect1, struct rect rect2) {
+    return rect1.x < rect2.x + rect2.width &&
+           rect1.x + rect1.width > rect2.x &&
+           rect1.y < rect2.y + rect2.height &&
+           rect1.y + rect1.height > rect2.y;
+}
+
+void calculateCollisionDisplacement(struct rect* rect1, struct rect rect2) {
+    int dx = 0, dy = 0;
+
+    // Calculate the overlap on each side of the rectangles
+    int overlapLeft = rect2.x + rect2.width - rect1->x;
+    int overlapRight = rect1->x + rect1->width - rect2.x;
+    int overlapTop = rect2.y + rect2.height - rect1->y;
+    int overlapBottom = rect1->y + rect1->height - rect2.y;
+
+    // Determine the direction of collision and the minimum displacement needed
+    if (overlapLeft < overlapRight) {
+        dx = -overlapLeft;
+    } else {
+        dx = overlapRight;
+    }
+
+    if (overlapTop < overlapBottom) {
+        dy = -overlapTop;
+    } else {
+        dy = overlapBottom;
+    }
+
+    // Adjust the position of rect1 to push it away from rect2
+    rect1->x += dx;
+    rect1->y += dy;
+}
 
 int main() {
 	vita2d_pgf *pgf;
@@ -31,7 +69,7 @@ int main() {
 	int y = 30;
 	
 	struct rect pl = {x,y,120,15};
-	struct rect fl = {960/2, 544/2,180,10};
+	struct rect fl = {x, y,120,15};
 	uint64_t prevTime = sceKernelGetProcessTimeWide();
     float deltaTime = 0.0f;
 	int jumpCount = 0;
@@ -39,7 +77,10 @@ int main() {
     float jumpSpeed=jumpForce;
 	int ground = 1;
 	float gravity = 500.0f;
-
+	
+	char scoreText[50];
+	char structText[40];
+	int col = 0;
 	int jumpButtonPressed = 0;
 	int forcePressed= 0;
 
@@ -84,13 +125,14 @@ int main() {
 
 		if (velocity < 0) {
 			//velocity -= acceleration * deltaTime;
-			velocity *= 0.6f; // Apply damping factor for left movement
+			velocity *= ld; // Apply damping factor for left movement
 		}
+
 		if (velocity > 0) {
 			velocity += acceleration * deltaTime;
-			velocity *= 0.85f; // Apply damping factor for right movement
+			velocity *= rd; // Apply damping factor for right movement
 		}
-		pl.x += floor(velocity * deltaTime);
+		pl.x += sp * velocity * deltaTime;
 		//velocity = .4f * velocity;
 
 		//such a pien, why why
@@ -132,16 +174,21 @@ int main() {
 		if(pl.y > gl) {pl.y = gl;}
 		if(pl.y < 12)  {pl.y = 12;}
 
+		if (isIntersecting(pl, fl)) {
+            //calculateCollisionDisplacement(&pl, fl); // Adjust the position to separate the rectangles 
+			col = 1;
+		} else {
+			col = 0;
+		}
 
 		vita2d_pgf_draw_text(pgf, x, y, RGBA8(0, 255, 0, 255), 1.0f, "Hello, World!");
-		char scoreText[50];
-		char structText[20];
+		
 
 		//Debug Text rendering, updated to reflect changing values
         sprintf(scoreText, "X: %d, Y: %d, ground: %d, jumpcount: %d, jumpforce: %.0f", x,y,ground, jumpCount, jumpForce);
 		vita2d_pgf_draw_text(pgf, 0, 15, RGBA8(0, 255, 0, 255), 1.0f, scoreText);
 
-		sprintf(structText, "sx: %d sy: %d velocity: %.4f", pl.x, pl.y, velocity);
+		sprintf(structText, "sx: %d sy: %d velocity: %.4f collision: %d", pl.x, pl.y, velocity, col);
 		vita2d_pgf_draw_text(pgf, 0, 30, RGBA8(0, 255, 0, 255), 1.0f, structText);
 		
 		//vita2d_draw_rectangle(x,y-15,120,15,RGBA8(0, 255, 0, 255));
@@ -149,7 +196,8 @@ int main() {
 
 		//Rectangles get drawn
 		vita2d_draw_rectangle(pl.x, pl.y-15,pl.width,pl.height,RGBA8(0, 255, 255, 255));
-		vita2d_draw_rectangle(fl.x-(fl.width/2), fl.y-15,fl.width,fl.height,RGBA8(255, 255, 0, 255));
+		
+		vita2d_draw_rectangle(fl.x, fl.y-15,fl.width,fl.height,RGBA8(0, 255, 0, 255));
 		
 		vita2d_end_drawing();
 		vita2d_swap_buffers();
