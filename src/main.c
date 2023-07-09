@@ -45,7 +45,7 @@ void calculateCollisionDisplacement(struct rect* rect1, struct rect rect2, int *
     // Determine the direction of collision and the minimum displacement needed
     if (overlapLeft < overlapRight) {
         dx = -overlapLeft;
-    } else {
+    } else if ( overlapRight < overlapLeft) {
         dx = overlapRight;
     }
 
@@ -72,14 +72,14 @@ int main() {
 	int x = 700;
 	int y = 30;
 	
-	struct rect pl = {x,y,120,15};
+	struct rect pl = {x,y,60,15};
 	struct rect fl = {960/2, 544/2,120,15};
 	uint64_t prevTime = sceKernelGetProcessTimeWide();
     float deltaTime = 0.0f;
 	int jumpCount = 0;
 	float jumpForce = jf;
     float jumpSpeed=jumpForce;
-	int ground = 1;
+	int ground = 0;
 	float gravity = 500.0f;
 	
 	char scoreText[80];
@@ -128,7 +128,7 @@ int main() {
 		if(ctrl.buttons & SCE_CTRL_RIGHT) {velocity += acceleration*deltaTime;}
 
 		if (velocity < 0) {
-			//velocity -= acceleration * deltaTime;
+			velocity -= acceleration * deltaTime;
 			velocity *= ld; // Apply damping factor for left movement
 		}
 
@@ -186,6 +186,7 @@ int main() {
 			col = 1;
 		} else {
 			col = 0;
+			ground = 0;
 		}
         
 		vita2d_pgf_draw_text(pgf, x, y, RGBA8(0, 255, 0, 255), 1.0f, "Hello, World!");
