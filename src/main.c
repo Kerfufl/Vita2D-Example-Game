@@ -10,9 +10,10 @@
 
 #define jf -850
 
+#define cl 12
 #define gl 539
 #define rb 840
-#define lb 10
+#define lb 0
 
 #define ld .85f
 #define rd .85f
@@ -26,6 +27,9 @@ struct rect {
 	int height;
 };
 
+/*
+	Just checks collisions between player and other rectangle
+*/
 int isIntersecting(struct rect rect1, struct rect rect2) {
     return rect1.x < rect2.x + rect2.width &&
            rect1.x + rect1.width > rect2.x &&
@@ -33,6 +37,9 @@ int isIntersecting(struct rect rect1, struct rect rect2) {
            rect1.y + rect1.height > rect2.y;
 }
 
+/*
+
+*/
 void calculateCollisionDisplacement(struct rect* rect1, struct rect rect2, int *gr) {
     int dx = 0, dy = 0;
 
@@ -42,26 +49,12 @@ void calculateCollisionDisplacement(struct rect* rect1, struct rect rect2, int *
     int overlapTop = rect2.y + rect2.height - rect1->y;
     int overlapBottom = rect1->y + rect1->height - rect2.y;
 
-    // Determine the direction of collision and the minimum displacement needed
-    if (overlapLeft < overlapRight) {
-        dx = -overlapLeft;
-    } else if ( overlapRight < overlapLeft) {
-        dx = overlapRight;
-    }
 
     if (overlapTop < overlapBottom) {
         dy = -overlapTop;
 		rect1->y = rect2.y;
 		*gr =1;
-    } else {
-        //dy = overlapBottom;
-		//rect1->y = rect2.y+rect2.height;
-		//*gr=0;
     }
-
-    // Adjust the position of rect1 to push it away from rect2
-    //rect1->x = 2 *dx;
-    //rect1->y += 1.5*dy;
 } 
  
 int main() {
@@ -73,12 +66,16 @@ int main() {
 	int y = 30;
 	
 	struct rect pl = {x,y,60,15};
-	struct rect fl = {960/2, 544/2,120,15};
+	
+	struct rect fl[3] = {{960/4, 544/2,120,15},{(960/4)* 3, 544/2,120,15}};
+
 	uint64_t prevTime = sceKernelGetProcessTimeWide();
     float deltaTime = 0.0f;
+
 	int jumpCount = 0;
 	float jumpForce = jf;
     float jumpSpeed=jumpForce;
+
 	int ground = 0;
 	float gravity = 500.0f;
 	
@@ -114,8 +111,6 @@ int main() {
             ground = 0;
             pl.y += gravity * deltaTime;
         }
-		//bruh
-		//y += 1500*5*deltaTime;
 
 		//Controls setup
 		if (ctrl.buttons & SCE_CTRL_LEFT || ctrl.buttons & SCE_CTRL_RIGHT) {
@@ -137,17 +132,19 @@ int main() {
 			velocity *= rd; // Apply damping factor for right movement
 		}
 		pl.x += sp * velocity * deltaTime;
-		//velocity = .4f * velocity;
 
-		//such a pien, why why
-
+		//Jump button
 		if (ctrl.buttons & SCE_CTRL_CROSS && !jumpButtonPressed && jumpCount < 4) {
             jumpSpeed = jumpForce; // Initial jump velocity
 			ground = 0;
             jumpCount++;
 			jumpButtonPressed = 1;
         }
+		if (!(ctrl.buttons & SCE_CTRL_CROSS)) {
+            jumpButtonPressed = 0;
+        }
 
+		//Modifies jump force
 		if (ctrl.buttons & SCE_CTRL_RTRIGGER  && !forcePressed)
 		{
 			jumpForce -= 50;
@@ -158,10 +155,6 @@ int main() {
 			jumpForce += 50;
 			forcePressed= 1;
 		}
-
-		if (!(ctrl.buttons & SCE_CTRL_CROSS)) {
-            jumpButtonPressed = 0;
-        }
 
 		if (!(ctrl.buttons & SCE_CTRL_RTRIGGER) && !(ctrl.buttons & SCE_CTRL_LTRIGGER))
 		{
@@ -174,26 +167,19 @@ int main() {
 			jumpCount = 0;
 		}
 		
-		
+		//prevents player from going off screen
 		if(pl.x > rb) {pl.x = rb;}
 		if(pl.x < lb)  {pl.x = lb;}
 		if(pl.y > gl) {pl.y = gl;}
 		if(pl.y < 12)  {pl.y = 12;}
-
-		if (isIntersecting(pl, fl)) {
-             // Adjust the position to separate the rectangles 
-			 calculateCollisionDisplacement(&pl, fl, &ground);
-			col = 1;
-		} else {
-			col = 0;
-			ground = 0;
-		}
+		
+		
         
 		vita2d_pgf_draw_text(pgf, x, y, RGBA8(0, 255, 0, 255), 1.0f, "Hello, World!");
 		
-
+ 
 		//Debug Text rendering, updated to reflect changing values
-        sprintf(scoreText, "X: %d, Y: %d, ground: %d, jumpcount: %d, jumpforce: %.0f", fl.x,fl.y,ground, jumpCount, jumpForce);
+        sprintf(scoreText, "X: %d, Y: %d, ground: %d, jumpcount: %d, jumpforce: %.0f", fl[0].x,fl[0].y,ground, jumpCount, jumpForce);
 		vita2d_pgf_draw_text(pgf, 0, 15, RGBA8(0, 255, 0, 255), 1.0f, scoreText);
 
 		sprintf(structText, "sx: %d sy: %d velocity: %.4f collision: %d", pl.x, pl.y, velocity, col);
@@ -201,15 +187,34 @@ int main() {
 		
 		//vita2d_draw_rectangle(x,y-15,120,15,RGBA8(0, 255, 0, 255));
 		
+		if (isIntersecting(pl, fl[0])) {
+            // Adjust the position to separate the rectangles 
+		 	calculateCollisionDisplacement(&pl, fl[0], &ground);
+			col = 1;
+		} else if (isIntersecting(pl, fl[1])) {
+            // Adjust the position to separate the rectangles 
+			calculateCollisionDisplacement(&pl, fl[1], &ground);
+			col = 1;
+		} else {
+			col = 0;
+			ground = 0;
+		}
 
-		//Rectangles get drawn
+		//Rectangles get drawn 
 		vita2d_draw_rectangle(pl.x, pl.y-15,pl.width,pl.height,RGBA8(0, 255, 255, 255));
 		
-		vita2d_draw_rectangle(fl.x, fl.y,fl.width,fl.height,RGBA8(255, 255, 0, 255));
+		
+		for (int i=0; i<2; i++)
+		{
+			vita2d_draw_rectangle(fl[i].x, fl[i].y,fl[i].width,fl[i].height,RGBA8(255, 255, 0, 255));
+		}
+		
+		//vita2d_draw_rectangle(fl[0].x, fl[0].y,fl[0].width,fl[0].height,RGBA8(255, 255, 0, 255));
+		//vita2d_draw_rectangle(fl[1].x, fl[1].y,fl[1].width,fl[1].height,RGBA8(255, 255, 0, 255));
 		
 		vita2d_end_drawing();
 		vita2d_swap_buffers();
-	} 
+	}
 	
 	vita2d_fini();
 	vita2d_free_pgf(pgf);
