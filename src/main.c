@@ -69,7 +69,7 @@ int main() {
 	int y = 30;
 	
 	struct rect pl = {x,y,120,15};
-	struct rect fl = {x, y,120,15};
+	struct rect fl = {960/2, 544/2,120,15};
 	uint64_t prevTime = sceKernelGetProcessTimeWide();
     float deltaTime = 0.0f;
 	int jumpCount = 0;
@@ -78,7 +78,7 @@ int main() {
 	int ground = 1;
 	float gravity = 500.0f;
 	
-	char scoreText[50];
+	char scoreText[80];
 	char structText[40];
 	int col = 0;
 	int jumpButtonPressed = 0;
@@ -180,12 +180,12 @@ int main() {
 		} else {
 			col = 0;
 		}
-
+        
 		vita2d_pgf_draw_text(pgf, x, y, RGBA8(0, 255, 0, 255), 1.0f, "Hello, World!");
 		
 
 		//Debug Text rendering, updated to reflect changing values
-        sprintf(scoreText, "X: %d, Y: %d, ground: %d, jumpcount: %d, jumpforce: %.0f", x,y,ground, jumpCount, jumpForce);
+        sprintf(scoreText, "X: %d, Y: %d, ground: %d, jumpcount: %d, jumpforce: %.0f", fl.x,fl.y,ground, jumpCount, jumpForce);
 		vita2d_pgf_draw_text(pgf, 0, 15, RGBA8(0, 255, 0, 255), 1.0f, scoreText);
 
 		sprintf(structText, "sx: %d sy: %d velocity: %.4f collision: %d", pl.x, pl.y, velocity, col);
@@ -197,7 +197,7 @@ int main() {
 		//Rectangles get drawn
 		vita2d_draw_rectangle(pl.x, pl.y-15,pl.width,pl.height,RGBA8(0, 255, 255, 255));
 		
-		vita2d_draw_rectangle(fl.x, fl.y-15,fl.width,fl.height,RGBA8(0, 255, 0, 255));
+		vita2d_draw_rectangle(fl.x, fl.y,fl.width,fl.height,RGBA8(255, 255, 0, 255));
 		
 		vita2d_end_drawing();
 		vita2d_swap_buffers();
