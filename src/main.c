@@ -12,7 +12,7 @@
 
 #define cl 12
 #define gl 539
-#define rb 840
+#define rb 960
 #define lb 0
 
 #define ld .85f
@@ -49,14 +49,17 @@ void calculateCollisionDisplacement(struct rect* rect1, struct rect rect2, int *
     int overlapTop = rect2.y + rect2.height - rect1->y;
     int overlapBottom = rect1->y + rect1->height - rect2.y;
 
-
+ 
     if (overlapTop < overlapBottom) {
-        dy = -overlapTop;
+        rect1->y = rect2.y + rect2.height;
+    } else if (overlapTop > overlapBottom) {
+		
+		//dy = -overlapTop;
 		rect1->y = rect2.y;
 		*gr =1;
-    }
+	}
 } 
- 
+
 int main() {
 	vita2d_pgf *pgf;
 	sceCtrlSetSamplingMode(SCE_CTRL_MODE_DIGITAL);
@@ -67,7 +70,7 @@ int main() {
 	
 	struct rect pl = {x,y,60,15};
 	
-	struct rect fl[3] = {{960/4, 544/2,120,15},{(960/4)* 3, 544/2,120,15}};
+	struct rect fl[3] = {{960/4, 544/2,120,15},{(960/4)* 3, 544/2,200,60}};
 
 	uint64_t prevTime = sceKernelGetProcessTimeWide();
     float deltaTime = 0.0f;
@@ -84,7 +87,7 @@ int main() {
 	int col = 0; 
 	int jumpButtonPressed = 0;
 	int forcePressed= 0;
-
+ 
 	float acceleration = 400.0f;
     float velocity = 0.0f;
 
@@ -170,7 +173,7 @@ int main() {
 		}
 		
 		//prevents player from going off screen
-		if(pl.x > rb) {pl.x = rb;}
+		if(pl.x+pl.width > rb) {pl.x = rb-pl.width;}
 		if(pl.x < lb)  {pl.x = lb;}
 		if(pl.y > gl) {pl.y = gl;}
 		if(pl.y < 12)  {pl.y = 12;}
@@ -179,7 +182,7 @@ int main() {
 			platformVel = -(platformVel);
 		}
 		fl[0].x += platformVel * deltaTime;
-		
+	
 		vita2d_pgf_draw_text(pgf, x, y, RGBA8(0, 255, 0, 255), 1.0f, "Hello, World!");
  
 		//Debug Text rendering, updated to reflect changing values
