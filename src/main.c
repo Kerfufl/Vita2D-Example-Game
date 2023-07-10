@@ -40,7 +40,7 @@ int isIntersecting(struct rect rect1, struct rect rect2) {
 /*
 
 */
-void calculateCollisionDisplacement(struct rect* rect1, struct rect rect2, int *gr) {
+void calculateCollisionDisplacement(struct rect* rect1, struct rect rect2, int *gr, float *jSpeed) {
     int dx = 0, dy = 0;
 
     // Calculate the overlap on each side of the rectangles
@@ -49,15 +49,16 @@ void calculateCollisionDisplacement(struct rect* rect1, struct rect rect2, int *
     int overlapTop = rect2.y + rect2.height - rect1->y;
     int overlapBottom = rect1->y + rect1->height - rect2.y;
 
- 
+
     if (overlapTop < overlapBottom) {
         rect1->y = rect2.y + rect2.height;
+		*(jSpeed) = -*(jSpeed);
     } else if (overlapTop > overlapBottom) {
 		
 		//dy = -overlapTop;
 		rect1->y = rect2.y;
 		*gr =1;
-	}
+	} 
 } 
 
 int main() {
@@ -122,6 +123,7 @@ int main() {
             acceleration = 400.0f;
         } else {
             acceleration = 0.0f;
+			velocity = 0.0f;
         }
 
  		if(ctrl.buttons & SCE_CTRL_LEFT) {velocity -= acceleration*deltaTime;}
@@ -196,12 +198,12 @@ int main() {
 		
 		if (isIntersecting(pl, fl[0])) {
             // Adjust the position to separate the rectangles 
-		 	calculateCollisionDisplacement(&pl, fl[0], &ground);
+		 	calculateCollisionDisplacement(&pl, fl[0], &ground, &jumpSpeed);
 			pl.x += platformVel * deltaTime;
 			col = 1;
 		} else if (isIntersecting(pl, fl[1])) {
             // Adjust the position to separate the rectangles 
-			calculateCollisionDisplacement(&pl, fl[1], &ground);
+			calculateCollisionDisplacement(&pl, fl[1], &ground, &jumpSpeed);
 			col = 1;
 		} else {
 			col = 0;
