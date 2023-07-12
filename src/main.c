@@ -188,8 +188,8 @@ int main() {
 		}
 		fl[0].x += platformVel * deltaTime;
  
-		fl[2].x =960/2+ (sin(th)*100);
-		fl[2].y = 540/2 + (cos(th)*100);
+		fl[2].x = 960/2 - (sin(th)*100);
+		fl[2].y = 540/2 - (cos(th)*100);
 		th += (60 * M_PI/180) * deltaTime; 
 		vita2d_pgf_draw_text(pgf, x, y, RGBA8(0, 255, 0, 255), 1.0f, "Hello, World!");
 
@@ -202,17 +202,21 @@ int main() {
 		
 		//vita2d_draw_rectangle(x,y-15,120,15,RGBA8(0, 255, 0, 255));
 		
-		if (isIntersecting(pl, fl[0])) {
-            // Adjust the position to separate the rectangles 
-		 	calculateCollisionDisplacement(&pl, fl[0], &ground, &jumpSpeed);
-			pl.x += platformVel * deltaTime;
-			col = 1;
-		} else if (isIntersecting(pl, fl[1])) {
-            // Adjust the position to separate the rectangles 
-			calculateCollisionDisplacement(&pl, fl[1], &ground, &jumpSpeed);
-			col = 1;
-		} else if (isIntersecting(pl, fl[2])) {
+		// if (isIntersecting(pl, fl[0])) {
+        //     // Adjust the position to separate the rectangles 
+		//  	calculateCollisionDisplacement(&pl, fl[0], &ground, &jumpSpeed);
+		// 	pl.x += platformVel * deltaTime;
+		// 	col = 1;
+		// } else if (isIntersecting(pl, fl[1])) {
+        //     // Adjust the position to separate the rectangles 
+		// 	calculateCollisionDisplacement(&pl, fl[1], &ground, &jumpSpeed);
+		// 	col = 1;
+		// } else 
+		
+		if (isIntersecting(pl, fl[2])) {
 			calculateCollisionDisplacement(&pl, fl[2], &ground, &jumpSpeed);
+			//pl.x = 960/2 - (sin(th)*100);
+			pl.y = (540/2 - (cos(th)*100))-(pl.height/2);
 			col = 1;
 		} else {
 			col = 0;
