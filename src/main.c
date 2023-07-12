@@ -211,12 +211,12 @@ int main() {
         //     // Adjust the position to separate the rectangles 
 		// 	calculateCollisionDisplacement(&pl, fl[1], &ground, &jumpSpeed);
 		// 	col = 1;
-		// } else 
+		// } else
 		
 		if (isIntersecting(pl, fl[2])) {
 			calculateCollisionDisplacement(&pl, fl[2], &ground, &jumpSpeed);
 			//pl.x = 960/2 - (sin(th)*100);
-			pl.y = (540/2 - (cos(th)*100))-(pl.height/2);
+			pl.y = (540/2 - (cos(th)*100));
 			col = 1;
 		} else {
 			col = 0;
