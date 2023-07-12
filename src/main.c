@@ -52,7 +52,7 @@ void calculateCollisionDisplacement(struct rect* rect1, struct rect rect2, int *
 
     if (overlapTop < overlapBottom) {
         rect1->y = rect2.y + rect2.height;
-		*(jSpeed) = -*(jSpeed);
+		*(jSpeed) *= .7;
     } else if (overlapTop > overlapBottom) {
 		
 		//dy = -overlapTop;
@@ -69,7 +69,7 @@ int main() {
 	int x = 700;
 	int y = 30;
 	
-	struct rect pl = {x,y,60,15};
+	struct rect pl = {445,544-15,60,15};
 	
 	struct rect fl[3] = {{960/4, 544/2,120,15},{(960/4)* 3, 544/2,200,60}};
 
