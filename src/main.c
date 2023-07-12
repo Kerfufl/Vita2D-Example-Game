@@ -216,6 +216,13 @@ int main() {
 		if (isIntersecting(pl, fl[2])) {
 			calculateCollisionDisplacement(&pl, fl[2], &ground, &jumpSpeed);
 			//pl.x = 960/2 - (sin(th)*100);
+			float playerXRelativeToPlatform = pl.x - fl[2].x;
+
+			// Calculate the new X coordinate of the player based on rotation
+			float rotatedPlayerX = sin(th) * playerXRelativeToPlatform;
+
+			// Update the player's X coordinate based on the platform's rotation
+			pl.x = fl[2].x + rotatedPlayerX;
 			pl.y = (540/2 - (cos(th)*100));
 			col = 1;
 		} else {
