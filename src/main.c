@@ -211,6 +211,9 @@ int main() {
             // Adjust the position to separate the rectangles 
 			calculateCollisionDisplacement(&pl, fl[1], &ground, &jumpSpeed);
 			col = 1;
+		} else if (isIntersecting(pl, fl[2])) {
+			calculateCollisionDisplacement(&pl, fl[2], &ground, &jumpSpeed);
+			col = 1;
 		} else {
 			col = 0;
 			ground = 0;
@@ -220,12 +223,12 @@ int main() {
 		vita2d_draw_rectangle(pl.x, pl.y-15,pl.width,pl.height,RGBA8(0, 255, 255, 255));
 		
 		
-		for (int i=0; i<2; i++)
+		for (int i=0; i<3; i++)
 		{
 			vita2d_draw_rectangle(fl[i].x, fl[i].y,fl[i].width,fl[i].height,RGBA8(255, 255, 0, 255));
 		}
  
-		vita2d_draw_rectangle(fl[2].x, fl[2].y,fl[2].width,fl[2].height,RGBA8(255, 0, 255, 255));
+		
 		
 		//vita2d_draw_rectangle(fl[0].x, fl[0].y,fl[0].width,fl[0].height,RGBA8(255, 255, 0, 255));
 		//vita2d_draw_rectangle(fl[1].x, fl[1].y,fl[1].width,fl[1].height,RGBA8(255, 255, 0, 255));
