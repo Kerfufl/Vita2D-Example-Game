@@ -17,6 +17,8 @@
 
 #define ld .85f
 #define rd .85f
+
+#define M_PI 3.14159265358979323846
 //PSP2_MODULE_INFO(0, 0, "HelloWorld");df
 
 
@@ -68,22 +70,23 @@ int main() {
 
 	int x = 700;
 	int y = 30;
+
+	float th = 0;
 	
-	struct rect pl = {445,544-15,60,15};
-	
-	struct rect fl[3] = {{960/4, 544/2,120,15},{(960/4)* 3, 544/2,200,60}};
+	struct rect pl = {960/2,gl,60,15};
+	 
+	struct rect fl[5] = {{960/4, 544/2,120,15},{(960/4)* 3, 544/2,200,60}, {960/2,544/2,120,15}};
 
 	uint64_t prevTime = sceKernelGetProcessTimeWide();
     float deltaTime = 0.0f;
-
 	int jumpCount = 0;
 	float jumpForce = jf;
     float jumpSpeed=jumpForce;
-
+ 
 	int ground = 0;
 	float gravity = 500.0f;
-	
-	char scoreText[100];
+ 
+	char scoreText[160];
 	char structText[50];
 	int col = 0; 
 	int jumpButtonPressed = 0;
@@ -139,7 +142,7 @@ int main() {
 			velocity *= rd; // Apply damping factor for right movement
 		}
 		pl.x += sp * velocity * deltaTime;
-
+		
 		//Jump button
 		if (ctrl.buttons & SCE_CTRL_CROSS && !jumpButtonPressed && jumpCount < 4) {
             jumpSpeed = jumpForce; // Initial jump velocity
@@ -173,7 +176,7 @@ int main() {
         } else {
 			jumpCount = 0;
 		}
-		
+		 
 		//prevents player from going off screen
 		if(pl.x+pl.width > rb) {pl.x = rb-pl.width;}
 		if(pl.x < lb)  {pl.x = lb;}
@@ -184,11 +187,14 @@ int main() {
 			platformVel = -(platformVel);
 		}
 		fl[0].x += platformVel * deltaTime;
-	
-		vita2d_pgf_draw_text(pgf, x, y, RGBA8(0, 255, 0, 255), 1.0f, "Hello, World!");
  
+		fl[2].x =960/2+ (sin(th)*100);
+		fl[2].y = 540/2 + (cos(th)*100);
+		th += (60 * M_PI/180) * deltaTime; 
+		vita2d_pgf_draw_text(pgf, x, y, RGBA8(0, 255, 0, 255), 1.0f, "Hello, World!");
+
 		//Debug Text rendering, updated to reflect changing values
-        sprintf(scoreText, "X: %d, Y: %d, ground: %d, jumpcount: %d, jumpforce: %.0f", fl[0].x,fl[0].y,ground, jumpCount, jumpForce);
+        sprintf(scoreText, "X: %d, Y: %d, ground: %d, jumpcount: %d, jumpforce: %.0f", fl[2].x,fl[2].y,ground, jumpCount, jumpForce);
 		vita2d_pgf_draw_text(pgf, 0, 15, RGBA8(0, 255, 0, 255), 1.0f, scoreText);
 
 		sprintf(structText, "sx: %d sy: %d velocity: %.4f collision: %d", pl.x, pl.y, velocity, col);
@@ -218,10 +224,13 @@ int main() {
 		{
 			vita2d_draw_rectangle(fl[i].x, fl[i].y,fl[i].width,fl[i].height,RGBA8(255, 255, 0, 255));
 		}
+ 
+		vita2d_draw_rectangle(fl[2].x, fl[2].y,fl[2].width,fl[2].height,RGBA8(255, 0, 255, 255));
 		
 		//vita2d_draw_rectangle(fl[0].x, fl[0].y,fl[0].width,fl[0].height,RGBA8(255, 255, 0, 255));
 		//vita2d_draw_rectangle(fl[1].x, fl[1].y,fl[1].width,fl[1].height,RGBA8(255, 255, 0, 255));
-		
+
+
 		vita2d_end_drawing();
 		vita2d_swap_buffers();
 	}
