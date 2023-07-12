@@ -2,9 +2,12 @@
 #include <psp2/kernel/processmgr.h>
 #include <psp2/ctrl.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 #include <math.h>
 #include <vita2d.h>
+
+#define ra ((rand()%155)+100)
 
 #define sp 3
 
@@ -21,12 +24,17 @@
 #define M_PI 3.14159265358979323846
 //PSP2_MODULE_INFO(0, 0, "HelloWorld");df
 
-
 struct rect {
 	int x;
 	int y;
 	int width;
 	int height;
+};
+
+struct colour {
+	int r;
+	int g;
+	int b;
 };
  
 /*
@@ -77,6 +85,10 @@ int main() {
 	 
 	struct rect fl[5] = {{960/4, 544/2,120,15},{(960/4)* 3, 544/2,200,60}, {960/2,544/2,120,15}};
 
+	srand((int)sceKernelGetProcessTimeWide);
+
+	struct colour cols[3] = {{ra,0,ra},{0,ra,ra},{ra,ra,0}};  
+	
 	uint64_t prevTime = sceKernelGetProcessTimeWide();
     float deltaTime = 0.0f;
 	int jumpCount = 0;
@@ -85,7 +97,7 @@ int main() {
  
 	int ground = 0;
 	float gravity = 500.0f;
- 
+	
 	char scoreText[160];
 	char structText[50];
 	int col = 0; 
@@ -202,24 +214,22 @@ int main() {
 		
 		//vita2d_draw_rectangle(x,y-15,120,15,RGBA8(0, 255, 0, 255));
 		
-		// if (isIntersecting(pl, fl[0])) {
-        //     // Adjust the position to separate the rectangles 
-		//  	calculateCollisionDisplacement(&pl, fl[0], &ground, &jumpSpeed);
-		// 	pl.x += platformVel * deltaTime;
-		// 	col = 1;
-		// } else if (isIntersecting(pl, fl[1])) {
-        //     // Adjust the position to separate the rectangles 
-		// 	calculateCollisionDisplacement(&pl, fl[1], &ground, &jumpSpeed);
-		// 	col = 1;
-		// } else
-		
-		if (isIntersecting(pl, fl[2])) {
+		if (isIntersecting(pl, fl[0])) {
+            // Adjust the position to separate the rectangles 
+		 	calculateCollisionDisplacement(&pl, fl[0], &ground, &jumpSpeed);
+			pl.x += platformVel * deltaTime;
+			col = 1;
+		} else if (isIntersecting(pl, fl[1])) {
+            // Adjust the position to separate the rectangles 
+			calculateCollisionDisplacement(&pl, fl[1], &ground, &jumpSpeed);
+			col = 1;
+		} else if (isIntersecting(pl, fl[2])) {
 			calculateCollisionDisplacement(&pl, fl[2], &ground, &jumpSpeed);
 			//pl.x = 960/2 - (sin(th)*100);
 			float playerXRelativeToPlatform = pl.x - fl[2].x;
 
 			// Calculate the new X coordinate of the player based on rotation
-			float rotatedPlayerX = sin(th) * playerXRelativeToPlatform;
+			float rotatedPlayerX = cos(th) * playerXRelativeToPlatform;
 
 			// Update the player's X coordinate based on the platform's rotation
 			pl.x = fl[2].x + rotatedPlayerX;
@@ -236,7 +246,7 @@ int main() {
 		
 		for (int i=0; i<3; i++)
 		{
-			vita2d_draw_rectangle(fl[i].x, fl[i].y,fl[i].width,fl[i].height,RGBA8(255, 255, 0, 255));
+			vita2d_draw_rectangle(fl[i].x, fl[i].y,fl[i].width,fl[i].height,RGBA8(cols[i].r, cols[i].g, cols[i].b, 255));
 		}
  
 		
